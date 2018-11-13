@@ -7,19 +7,14 @@
 const POST = 'Post';
 const COMMENT = 'Comment';
 
-Parse.Cloud.define('posts:get', async (request, response) => {
+Parse.Cloud.define('posts:get', async request => {
   // Needs a post ID
-  return new Parse.Query(POST)
-    .get(request.params.id, { useMasterKey: true })
-    .then(post => {
-      response.success(post);
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+  return new Parse.Query(POST).get(request.params.id, {
+    useMasterKey: true
+  });
 });
 
-Parse.Cloud.define('posts:list', async (request, response) => {
+Parse.Cloud.define('posts:list', async request => {
   // Allow pagination
   const skip = request.params.skip || 0;
   const limit = request.params.limit || 20;
@@ -27,139 +22,96 @@ Parse.Cloud.define('posts:list', async (request, response) => {
   return new Parse.Query(POST)
     .skip(skip)
     .limit(limit)
-    .find({ useMasterKey: true })
-    .then(posts => {
-      response.success(posts);
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+    .find({ useMasterKey: true });
 });
 
-Parse.Cloud.define('posts:create', async (request, response) => {
+Parse.Cloud.define('posts:create', async request => {
   // Post should have text and should have a user
   if (!request.user) {
-    return response.error({ message: 'unauthenticated!' });
+    throw new Error('unauthenticated!');
   }
 
   if (!request.params.text) {
-    return response.error({ message: 'A post needs text!' });
+    throw new Error('A post needs text!');
   }
 
   return new Parse.Object(POST, {
     text: request.params.text,
     user: request.user
-  })
-    .save(null, { useMasterKey: true })
-    .then(post => {
-      response.success(post);
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+  }).save(null, { useMasterKey: true });
 });
 
-Parse.Cloud.define('posts:delete', async (request, response) => {
+Parse.Cloud.define('posts:delete', async request => {
   if (!request.user) {
-    return response.error({ message: 'unauthenticated!' });
+    throw new Error('unauthenticated!');
   }
+
+  if (!request.params.text) {
+    throw new Error('A post needs text!');
+  }
+
   if (!request.params.id) {
-    return response.error({ message: 'Need Post ID!' });
+    throw new Error('Need Post ID!');
   }
-  return new Parse.Query(POST)
-    .get(request.params.id, { useMasterKey: true })
-    .then(post => {
-      return post.destroy({ useMasterKey: true });
-    })
-    .then(() => {
-      response.success({});
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+
+  const post = await new Parse.Query(POST).get(request.params.id, {
+    useMasterKey: true
+  });
+  return post.destroy({ useMasterKey: true });
 });
 
-Parse.Cloud.define('comment:get', async (request, response) => {
+Parse.Cloud.define('comment:get', async request => {
   // Needs a post ID
-  return new Parse.Query(COMMENT)
-    .get(request.params.id, { useMasterKey: true })
-    .then(comment => {
-      response.success(comment);
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+  return new Parse.Query(COMMENT).get(request.params.id, {
+    useMasterKey: true
+  });
 });
 
-Parse.Cloud.define('comment:list', async (request, response) => {
+Parse.Cloud.define('comment:list', async request => {
   // Allow pagination
   const skip = request.params.skip || 0;
   const limit = request.params.limit || 20;
 
-  return new Parse.Query(COMMENT)
-    .skip(skip)
-    .limit(limit)
-    .find({ useMasterKey: true })
-    .then(comments => {
-      response.success(comments);
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+  return new Parse.Query(COMMENT).skip(skip).limit(limit);
 });
 
-Parse.Cloud.define('comment:create', async (request, response) => {
+Parse.Cloud.define('comment:create', async request => {
   // Post should have text and should have a user and a post id
   if (!request.user) {
-    return response.error({ message: 'unauthenticated!' });
+    throw new Error('unauthenticated!');
   }
 
   if (!request.params.text) {
-    return response.error({ message: 'A comment needs text!' });
+    throw new Error('A comment needs text!');
   }
   if (!request.params.post_id) {
-    return response.error({ message: 'A comment needs a post!' });
+    throw new Error('A comment needs a post!');
   }
+
   //   Get the post
-  return new Parse.Query(POST)
-    .get(request.params.post_id, {
-      useMasterKey: true
-    })
-    .then(post => {
-      return new Parse.Object(COMMENT, {
-        text: request.params.text,
-        user: request.user,
-        post: post
-      }).save(null, { useMasterKey: true });
-    })
-    .then(comment => {
-      response.success(comment);
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+
+  const post = await new Parse.Query(POST).get(request.params.post_id, {
+    useMasterKey: true
+  });
+  return new Parse.Object(COMMENT, {
+    text: request.params.text,
+    user: request.user,
+    post: post
+  }).save(null, { useMasterKey: true });
 });
 
-Parse.Cloud.define('comment:delete', async (request, response) => {
+Parse.Cloud.define('comment:delete', async request => {
   if (!request.user) {
-    return response.error({ message: 'unauthenticated!' });
+    throw new Error('unauthenticated!');
   }
 
   if (!request.params.id) {
-    return response.error({ message: 'Need Comment ID!' });
+    throw new Error('Need Comment ID!');
   }
 
-  return new Parse.Query(COMMENT)
-    .get(request.params.id, {
-      useMasterKey: true
-    })
-    .then(comment => {
-      return comment.destroy({ useMasterKey: true });
-    })
-    .then(() => {
-      response.success({});
-    })
-    .catch(e => {
-      response.error({ message: e.message });
-    });
+  const comment = await new Parse.Query(COMMENT).get(request.params.id, {
+    useMasterKey: true
+  });
+
+  return comment.destroy({ useMasterKey: true });
 });
