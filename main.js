@@ -9,7 +9,7 @@ const COMMENT = 'Comment';
 
 const AssertParams = parameter_obj => {
   for (var key of Object.keys(parameter_obj)) {
-    if (!parameter_obj[key]) throw new Error(`Missing parameter ${key}`);
+    if (typeof parameter_obj[key] === 'undefined') throw new Error(`Missing parameter ${key}`);
   }
 };
 
