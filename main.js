@@ -7,7 +7,7 @@
 const POST = 'Post';
 const COMMENT = 'Comment';
 
-Parse.Cloud.define('posts:get', function(request, response) {
+Parse.Cloud.define('posts:get', async (request, response) => {
   // Needs a post ID
   return new Parse.Query(POST)
     .get(request.params.id, { useMasterKey: true })
@@ -19,7 +19,7 @@ Parse.Cloud.define('posts:get', function(request, response) {
     });
 });
 
-Parse.Cloud.define('posts:list', function(request, response) {
+Parse.Cloud.define('posts:list', async (request, response) => {
   // Allow pagination
   const skip = request.params.skip || 0;
   const limit = request.params.limit || 20;
@@ -36,7 +36,7 @@ Parse.Cloud.define('posts:list', function(request, response) {
     });
 });
 
-Parse.Cloud.define('posts:create', function(request, response) {
+Parse.Cloud.define('posts:create', async (request, response) => {
   // Post should have text and should have a user
   if (!request.user) {
     return response.error({ message: 'unauthenticated!' });
@@ -59,7 +59,7 @@ Parse.Cloud.define('posts:create', function(request, response) {
     });
 });
 
-Parse.Cloud.define('posts:delete', function(request, response) {
+Parse.Cloud.define('posts:delete', async (request, response) => {
   if (!request.user) {
     return response.error({ message: 'unauthenticated!' });
   }
@@ -79,7 +79,7 @@ Parse.Cloud.define('posts:delete', function(request, response) {
     });
 });
 
-Parse.Cloud.define('comment:get', function(request, response) {
+Parse.Cloud.define('comment:get', async (request, response) => {
   // Needs a post ID
   return new Parse.Query(COMMENT)
     .get(request.params.id, { useMasterKey: true })
@@ -91,7 +91,7 @@ Parse.Cloud.define('comment:get', function(request, response) {
     });
 });
 
-Parse.Cloud.define('comment:list', function(request, response) {
+Parse.Cloud.define('comment:list', async (request, response) => {
   // Allow pagination
   const skip = request.params.skip || 0;
   const limit = request.params.limit || 20;
@@ -108,7 +108,7 @@ Parse.Cloud.define('comment:list', function(request, response) {
     });
 });
 
-Parse.Cloud.define('comment:create', function(request, response) {
+Parse.Cloud.define('comment:create', async (request, response) => {
   // Post should have text and should have a user and a post id
   if (!request.user) {
     return response.error({ message: 'unauthenticated!' });
@@ -140,7 +140,7 @@ Parse.Cloud.define('comment:create', function(request, response) {
     });
 });
 
-Parse.Cloud.define('comment:delete', function(request, response) {
+Parse.Cloud.define('comment:delete', async (request, response) => {
   if (!request.user) {
     return response.error({ message: 'unauthenticated!' });
   }
