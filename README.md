@@ -18,7 +18,7 @@ git checkout -b step_3
 
 
 
-### 3Extras :)
+### Extras :)
 ```bash
 git checkout -b step_advanced
 ```
